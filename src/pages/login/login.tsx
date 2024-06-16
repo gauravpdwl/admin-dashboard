@@ -1,8 +1,9 @@
 import { Alert, Button, Card, Checkbox, Flex, Form, Input, Layout, Space } from 'antd';
 import {LockFilled} from '@ant-design/icons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Credentials } from '../../types';
-import { login } from '../../http/api';
+import { login, self } from '../../http/api';
+import { useAuthStore } from '../../store';
 // import style from './login.module.css';
 
 const loginUser=async (credentials: Credentials)=>{
@@ -12,13 +13,31 @@ const loginUser=async (credentials: Credentials)=>{
   return data;
 }
 
+const getSelf=async()=>{
+  const output = await self();
+  // console.log("data -",output);
+  return output.data;
+}
+
 function LoginPage() {
+
+  const {setUser} = useAuthStore();
+
+  const {refetch }=useQuery({
+    queryKey:['self'],
+    queryFn: getSelf,
+    // on render this function execute automatically so to prevent we use enabled false.
+    enabled:true
+  })
   
   // returns mutate function
   const {mutate, isPending, isError, error}=useMutation({
       mutationKey:['login'],
       mutationFn:loginUser,
       onSuccess:async()=>{
+        const selfDataPromise=await refetch();
+        setUser(selfDataPromise.data);
+        console.log("User data - ", selfDataPromise.data);
         console.log("login successful");
       }
   })
