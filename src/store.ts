@@ -1,13 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-
-export interface User{
-    id:number;
-    firstName: string;
-    lastname: string;
-    email:string;
-    role:string;
-}
+import { User } from "./types";
 
 interface AuthState{
     user:null | User;

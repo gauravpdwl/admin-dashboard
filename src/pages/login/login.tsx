@@ -2,8 +2,9 @@ import { Alert, Button, Card, Checkbox, Flex, Form, Input, Layout, Space } from 
 import {LockFilled} from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Credentials } from '../../types';
-import { login, self } from '../../http/api';
+import { login, self, logout as logoutfromapireq } from '../../http/api';
 import { useAuthStore } from '../../store';
+import { usePermission } from '../../hooks/usePermission';
 // import style from './login.module.css';
 
 const loginUser=async (credentials: Credentials)=>{
@@ -21,13 +22,14 @@ const getSelf=async()=>{
 
 function LoginPage() {
 
-  const {setUser} = useAuthStore();
+  const {isAllowed}=usePermission()
+  const {setUser, logout} = useAuthStore();
 
   const {refetch }=useQuery({
     queryKey:['self'],
     queryFn: getSelf,
     // on render this function execute automatically so to prevent we use enabled false.
-    enabled:true
+    enabled:false
   })
   
   // returns mutate function
@@ -35,7 +37,25 @@ function LoginPage() {
       mutationKey:['login'],
       mutationFn:loginUser,
       onSuccess:async()=>{
+
         const selfDataPromise=await refetch();
+
+        // here we are checking if user is admin or manager
+        // if customer is present then isAllowed will return true
+        // we are setting user in state to null and removing cookies through logout api call
+
+        if(!isAllowed(selfDataPromise.data)){
+          logout();
+          await logoutfromapireq();
+          return;
+        }
+
+        // if(selfDataPromise.data.role === 'customer'){
+        //   await logout();
+        //   await logoutfromapireq();
+        //   return;
+        // }
+
         setUser(selfDataPromise.data);
         console.log("User data - ", selfDataPromise.data);
         console.log("login successful");
