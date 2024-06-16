@@ -1,0 +1,36 @@
+.top{
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.topinner{
+    display: flex;
+    height: 40vh;
+    width: 40vw;
+    background-color: antiquewhite;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.userpass{
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+}
+
+.para{
+    margin: 0;
+    padding: 0;
+}
+
+.forgotcheck{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}

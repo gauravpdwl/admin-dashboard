@@ -1,0 +1,49 @@
+db.orders.aggregate([
+    {
+        $lookup:{
+            from:"customers",
+            localField:"customer_id",
+            foreignField:"customer_id",
+            as:"customer_details"
+        }
+    }
+])
+
+db.orders.aggregate([
+    {
+        $lookup: {
+            from: "customers",
+            localField: "customer_id",
+            foreignField: "customer_id",
+            as: "customer_details"
+        }
+    },
+    {
+        $match: {$and:[
+            { "customer_details.name": "Alice" },
+            {"amount": {
+                $gt:200
+            }}
+        ]}
+    }
+]);
+
+//Transactions are useful for operations that require atomicity across multiple documents.
+
+const session = db.getMongo().startSession();
+session.startTransaction();
+
+try {
+    const customersCollection = session.getDatabase("your_database").customers;
+    const ordersCollection = session.getDatabase("your_database").orders;
+
+    customersCollection.updateOne({ "customer_id": 1 }, { $set: { "age": 29 } }, { session });
+    ordersCollection.updateOne({ "order_id": 101 }, { $set: { "amount": 850 } }, { session });
+
+    session.commitTransaction();
+    session.endSession();
+} catch (error) {
+    session.abortTransaction();
+    session.endSession();
+    throw error;
+}
