@@ -12,7 +12,6 @@ const Nonauth = () => {
 
   return (
     <div>
-        <h1>Non Authenticated Users</h1>
         <Outlet/>
     </div>
   )
