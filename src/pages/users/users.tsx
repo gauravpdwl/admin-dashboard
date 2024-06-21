@@ -1,9 +1,11 @@
 import { Breadcrumb, Space, Table } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../../http/api';
 import { User } from '../../types';
+import { useAuthStore } from '../../store';
+import UsersFilter from './usersfilter';
 
 const fetchUsers= async ()=>{
     const output=await getUsers();
@@ -49,6 +51,13 @@ const Users = () => {
         staleTime: 1000*60,
     });
 
+    // *************to be changed after adding admin user creation route in backend***************
+
+    const {user} = useAuthStore();
+    if(user?.role !== 'customer'){
+        return <Navigate to="/" replace={true} />;
+    }
+
     return (
         <>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -56,6 +65,7 @@ const Users = () => {
                     separator={<RightOutlined />}
                     items={[{ title: <Link to="/">Dashboard</Link> }, { title: 'Users' }]}
                 />
+                <UsersFilter/>
                 {isLoading && <div>Loading...</div>}
                 {isError && <div>{error.message}</div>}
 

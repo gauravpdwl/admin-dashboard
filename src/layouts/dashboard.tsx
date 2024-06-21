@@ -10,33 +10,81 @@ import { logout } from '../http/api';
 
 const { Sider, Header, Content, Footer } = Layout;
 
-const items = [
-    {
-        key: '/',
-        icon: <HomeOutlined/>,
-        label: <NavLink to="/">Home</NavLink>,
-    },
-    {
-        key: '/users',
-        icon: <UserOutlined/>,
-        label: <NavLink to="/users">Users</NavLink>,
-    },
-    {
-        key: '/restaurants',
-        icon: <Icon component={foodIcon} />,
-        label: <NavLink to="/restaurants">Restaurants</NavLink>,
-    },
-    {
-        key: '/products',
-        icon: <ProductOutlined />,
-        label: <NavLink to="/products">Products</NavLink>,
-    },
-    {
-        key: '/promos',
-        icon: <ProfileOutlined />,
-        label: <NavLink to="/promos">Promos</NavLink>,
-    },
-];
+const getMenuItems=(role:string)=>{
+
+    const baseItems=[
+
+        {
+            key: '/',
+            icon: <HomeOutlined/>,
+            label: <NavLink to="/">Home</NavLink>,
+        },
+        
+        {
+            key: '/restaurants',
+            icon: <Icon component={foodIcon} />,
+            label: <NavLink to="/restaurants">Restaurants</NavLink>,
+        },
+        {
+            key: '/products',
+            icon: <ProductOutlined />,
+            label: <NavLink to="/products">Products</NavLink>,
+        },
+        {
+            key: '/promos',
+            icon: <ProfileOutlined />,
+            label: <NavLink to="/promos">Promos</NavLink>,
+        },
+
+    ]
+
+    // *************to be changed after adding admin user creation route in backend***************
+    //  change to admin 
+    if(role === 'customer'){
+
+        const menus=[...baseItems];
+        // adds the user route on second position in list
+        menus.splice(1, 0, {
+            key: '/users',
+            icon: <UserOutlined/>,
+            label: <NavLink to="/users">Users</NavLink>,
+        })
+
+        return menus;
+    }
+
+    return baseItems;
+}
+
+
+// const items = [
+//     {
+//         key: '/',
+//         icon: <HomeOutlined/>,
+//         label: <NavLink to="/">Home</NavLink>,
+//     },
+//     {
+//         key: '/users',
+//         icon: <UserOutlined/>,
+//         label: <NavLink to="/users">Users</NavLink>,
+//     },
+//     {
+//         key: '/restaurants',
+//         icon: <Icon component={foodIcon} />,
+//         label: <NavLink to="/restaurants">Restaurants</NavLink>,
+//     },
+//     {
+//         key: '/products',
+//         icon: <ProductOutlined />,
+//         label: <NavLink to="/products">Products</NavLink>,
+//     },
+//     {
+//         key: '/promos',
+//         icon: <ProfileOutlined />,
+//         label: <NavLink to="/promos">Promos</NavLink>,
+//     },
+// ];
+
 const Dashboard = () => {
 
     // to set state user to null
@@ -52,6 +100,7 @@ const Dashboard = () => {
     });
 
     const [collapsed, setCollapsed] = useState(false);
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -62,6 +111,7 @@ const Dashboard = () => {
         return <Navigate to="/auth/login" replace={true} />;
     }
 
+    const items=getMenuItems(user.role);
     
     return (
         <div>
