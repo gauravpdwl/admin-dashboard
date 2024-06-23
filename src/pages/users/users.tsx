@@ -1,18 +1,13 @@
 import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from 'antd';
 import { RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link, Navigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getUsers } from '../../http/api';
-import { User } from '../../types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createUser, getUsers } from '../../http/api';
+import { CreateUserData, User } from '../../types';
 import { useAuthStore } from '../../store';
 import UsersFilter from './usersfilter';
 import React from 'react';
 import UserForm from './userForm';
-
-const fetchUsers= async ()=>{
-    const output=await getUsers();
-    return output.data;
-}
 
 const columns = [
     {
@@ -45,24 +40,47 @@ const columns = [
 ];
 
 const Users = () => {
-
+    const [form] = Form.useForm();
+    const queryClient = useQueryClient();
     const {
         token: { colorBgLayout },
     } = theme.useToken();
 
     const [drawerOpen, setDrawerOpen] = React.useState(false);
-
-    const {data : users, isLoading, isError, error}=useQuery({
-        queryKey:['users'],
-        queryFn:fetchUsers,
+    const {
+        data: users,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ['users'],
+        queryFn: () => {
+            return getUsers().then((res) => res.data);
+        },
         retryOnMount:false,
         staleTime: 1000*60,
     });
 
-    // *************to be changed after adding admin user creation route in backend***************
+    const { user } = useAuthStore();
 
-    const {user} = useAuthStore();
-    if(user?.role !== 'customer'){
+    const { mutate: userMutate } = useMutation({
+        mutationKey: ['user'],
+        mutationFn: async (data: CreateUserData) => createUser(data).then((res) => res.data),
+        onSuccess: async () => {
+            // This method is called to mark specific queries as stale.
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            return;
+        },
+    });
+
+    const onHandleSubmit = async () => {
+        await form.validateFields();
+        await userMutate(form.getFieldsValue());
+        form.resetFields();
+        setDrawerOpen(false);
+    };
+
+    if (user?.role !== 'admin') {
         return <Navigate to="/" replace={true} />;
     }
 
@@ -73,25 +91,22 @@ const Users = () => {
                     separator={<RightOutlined />}
                     items={[{ title: <Link to="/">Dashboard</Link> }, { title: 'Users' }]}
                 />
-
-                <UsersFilter onFilterChange={(filterName:string, filterValue:string)=>{
-                    console.log("filterName - "+filterName+" filterValue - "+filterValue);
-                }}>
-
-                    <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />}
-                    onClick={() => setDrawerOpen(true)}
-                    >
-                        Add User
-                    </Button>
-
-                </UsersFilter>
-
                 {isLoading && <div>Loading...</div>}
                 {isError && <div>{error.message}</div>}
 
-                <Table columns={columns} dataSource={users} rowKey={"id"} />
+                <UsersFilter
+                    onFilterChange={(filterName: string, filterValue: string) => {
+                        console.log(filterName, filterValue);
+                    }}>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setDrawerOpen(true)}>
+                        Add User
+                    </Button>
+                </UsersFilter>
+
+                <Table columns={columns} dataSource={users} rowKey={'id'} />
 
                 <Drawer
                     title="Create user"
@@ -100,21 +115,27 @@ const Users = () => {
                     destroyOnClose={true}
                     open={drawerOpen}
                     onClose={() => {
+                        form.resetFields();
                         setDrawerOpen(false);
                     }}
                     extra={
                         <Space>
-                            <Button>Cancel</Button>
-                            <Button type="primary">Submit</Button>
+                            <Button
+                                onClick={() => {
+                                    form.resetFields();
+                                    setDrawerOpen(false);
+                                }}>
+                                Cancel
+                            </Button>
+                            <Button type="primary" onClick={onHandleSubmit}>
+                                Submit
+                            </Button>
                         </Space>
                     }>
-
-                    <Form layout="vertical">
+                    <Form layout="vertical" form={form}>
                         <UserForm />
                     </Form>
-                    
                 </Drawer>
-
             </Space>
         </>
     );

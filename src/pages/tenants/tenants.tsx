@@ -43,7 +43,7 @@ const Tenants = () => {
 
     const { user } = useAuthStore();
 
-    if (user?.role !== 'customer') {
+    if (user?.role !== 'admin') {
         return <Navigate to="/" replace={true} />;
     }
 

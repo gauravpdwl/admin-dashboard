@@ -40,7 +40,7 @@ const getMenuItems=(role:string)=>{
 
     // *************to be changed after adding admin user creation route in backend***************
     //  change to admin 
-    if(role === 'customer'){
+    if(role === 'admin'){
 
         const menus=[...baseItems];
         // adds the user route on second position in list
