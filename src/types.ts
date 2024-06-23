@@ -3,7 +3,7 @@ export type Credentials={
     password:string;
 }
 
-interface Tenant{
+export interface Tenant{
     id:number;
     name:string;
     address:string;
@@ -17,3 +17,4 @@ export interface User{
     role:string;
     tenant?:Tenant;
 }
+

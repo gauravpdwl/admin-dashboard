@@ -8,3 +8,7 @@ export const self=()=> api.get('auth/self');
 export const logout=()=> api.post('auth/logout');
 
 export const getUsers=()=> api.get('users/all');
+
+export const getTenants=()=> api.get('tenants/all');
+
+
