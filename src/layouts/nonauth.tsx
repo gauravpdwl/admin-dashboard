@@ -6,6 +6,8 @@ const Nonauth = () => {
     const {user} =useAuthStore()
 
     if(user !== null){
+      // here we are passing search query to URLSearchParams and it returns a object 
+      // from which we are getting 'returnTo' value
       const returnTo=new URLSearchParams(location.search).get('returnTo') || '/';
         return <Navigate to={returnTo} replace={true} />
     }

@@ -1,1 +1,1 @@
-export const per_page=6;
+export const per_page=10;

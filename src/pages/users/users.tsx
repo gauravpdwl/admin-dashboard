@@ -2,7 +2,7 @@ import { Breadcrumb, Button, Drawer, Flex, Form, Space, Spin, Table, theme, Typo
 import { RightOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Link, Navigate } from 'react-router-dom';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createUser, getUsers } from '../../http/api';
+import { createUser, getUsers, updateUser } from '../../http/api';
 import { CreateUserData, FieldData, User } from '../../types';
 import { useAuthStore } from '../../store';
 import UsersFilter from './usersfilter';
@@ -51,6 +51,7 @@ const columns = [
             );
         },
     },
+    
 ];
 
 const Users = () => {
@@ -62,6 +63,8 @@ const Users = () => {
   const [form] = Form.useForm();
   const [filterForm] = Form.useForm();
 
+  const[currentEditingUser, setCurrentEditingUser]=React.useState<User | null>(null);
+
   const queryClient = useQueryClient();
 
   const {
@@ -69,6 +72,13 @@ const Users = () => {
   } = theme.useToken();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  React.useEffect(()=>{
+    if(currentEditingUser){
+      setDrawerOpen(true);
+      form.setFieldsValue({...currentEditingUser, tenantId: currentEditingUser.tenant?.id});
+    }
+  },[currentEditingUser, form])
 
   const {
     data: users,
@@ -105,11 +115,30 @@ const Users = () => {
     },
   });
 
+  const { mutate: updateUserMutation } = useMutation({
+    mutationKey: ["update-user"],
+    mutationFn: async (data: CreateUserData) =>
+      updateUser(data, currentEditingUser!.id).then((res) => res.data),
+    onSuccess: async () => {
+      // This method is called to mark specific queries as stale.
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      return;
+    },
+  });
+
   const onHandleSubmit = async () => {
+    const isEditMode=!!currentEditingUser
     await form.validateFields();
-    await userMutate(form.getFieldsValue());
-    console.log("Form data - ",form.getFieldsValue());
+    if(isEditMode){
+      console.log('updating...');
+      await updateUserMutation(form.getFieldsValue());
+    }else{
+      console.log('creating');
+      await userMutate(form.getFieldsValue());
+    }
+    // console.log("Form data - ",form.getFieldsValue());
     form.resetFields();
+    setCurrentEditingUser(null);
     setDrawerOpen(false);
   };
 
@@ -183,7 +212,19 @@ const Users = () => {
         </Form>
 
         <Table
-          columns={columns}
+          columns={[...columns, {
+            title:'Actions',
+            render:(_:string, record: User)=>{
+              // console.log(record);
+              return (
+                <Space>
+                  <Button type='link' onClick={()=>{
+                    setCurrentEditingUser(record);
+                  }}>Edit</Button>
+                </Space>
+              )
+            }
+          }]}
           dataSource={users?.data}
           rowKey={"id"}
           pagination={{
@@ -205,13 +246,14 @@ const Users = () => {
         />
 
         <Drawer
-          title="Create user"
+          title={currentEditingUser ? "Edit User" : "Create user"}
           width={720}
           styles={{ body: { backgroundColor: colorBgLayout } }}
           destroyOnClose={true}
           open={drawerOpen}
           onClose={() => {
             form.resetFields();
+            setCurrentEditingUser(null);
             setDrawerOpen(false);
           }}
           extra={
@@ -219,6 +261,7 @@ const Users = () => {
               <Button
                 onClick={() => {
                   form.resetFields();
+                  setCurrentEditingUser(null);
                   setDrawerOpen(false);
                 }}
               >
@@ -231,7 +274,11 @@ const Users = () => {
           }
         >
           <Form layout="vertical" form={form}>
-            <UserForm />
+             {/* !!currentEditingUser -> if value is null then !null=true then !true=false so null would be false
+                  if currentEditingUser contains some value then first it would convert to false then it would convert 
+                  to true by second Not(!) condition
+             */}
+            <UserForm isEditMode={!!currentEditingUser} />
           </Form>
         </Drawer>
       </Space>

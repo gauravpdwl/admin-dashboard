@@ -13,4 +13,5 @@ export const getTenants=()=> api.get('tenants/all');
 
 export const createUser = (user: CreateUserData) => api.post('/users', user);
 
+export const updateUser=(user: CreateUserData, id: number) => api.patch(`/users/${id}`, user);
 

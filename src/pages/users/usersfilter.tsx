@@ -8,17 +8,18 @@ type UsersFilterProps={
 const UsersFilter = ({children}: UsersFilterProps) => {
     return (
       <Card>
-        <Row justify="space-between">
+        <Row justify="space-between" align="middle">
           <Col span={16}>
-            <Row gutter={20}>
+            <Row gutter={20} > 
               <Col span={8}>
                 <Form.Item name="q">
-                    <Input.Search placeholder="Search" allowClear={true} />
+                    <Input.Search placeholder="Search" allowClear={true}  />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="role">
+                <Form.Item name="role" >
                     <Select
+                    id='selectBoxInUserForm'
                     style={{ width: "100%" }}
                     allowClear={true}
                     placeholder="Select role"
