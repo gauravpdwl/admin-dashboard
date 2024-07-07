@@ -15,7 +15,7 @@ export const api=axios.create({
 // const refreshToken=()=>api.get('auth/refresh');
 
 const refreshToken=async ()=>{
-    await axios.post(`http://localhost:8000/auth/refresh`, 
+    await axios.post(`http://localhost:8000/api/auth/auth/refresh`, 
         // body
         {},
         {
