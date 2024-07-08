@@ -2,7 +2,9 @@ import { Credentials, CreateUserData } from "../types";
 import { api } from "./client";
 
 const auth_service='/api/auth';
+const catalog_service='api/catalog'
 
+// auth service
 export const login=(credentials: Credentials)=> api.post(`${auth_service}/auth/login`, credentials);
 
 export const self=()=> api.get(`${auth_service}/auth/self`);
@@ -17,3 +19,5 @@ export const createUser = (user: CreateUserData) => api.post(`${auth_service}/us
 
 export const updateUser=(user: CreateUserData, id: number) => api.patch(`${auth_service}/users/${id}`, user);
 
+// catalog service
+export const getCategories = () => api.get(`${catalog_service}/categories`);
