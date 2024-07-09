@@ -2,12 +2,13 @@ import { Breadcrumb, Button, Flex, Form, Image, Space, Table, Tag, Typography } 
 import { RightOutlined, PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import ProductsFilter from './productsFilter';
-import { Product } from '../../types';
+import { FieldData, Product } from '../../types';
 import React from 'react';
 import { per_page } from '../../constants';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getProducts } from '../../http/api';
 import { format } from 'date-fns';
+import { debounce } from 'lodash';
 
 const columns = [
     {
@@ -60,7 +61,7 @@ const Products = () => {
     const [filterForm] = Form.useForm();
 
     const [queryParams, setQueryParams] = React.useState({
-        perPage: per_page,
+        pageSize: per_page,
         currentPage: 1,
     });
 
@@ -79,7 +80,34 @@ const Products = () => {
             return getProducts(queryString).then((res) => res.data);
         },
         placeholderData: keepPreviousData,
+        retryOnMount: false,
+        staleTime: 1000 * 60,
     });
+
+    const debouncedQUpdate = React.useMemo(() => {
+        return debounce((value: string | undefined) => {
+            setQueryParams((prev) => ({ ...prev, q: value, currentPage: 1 }));
+        }, 500);
+    }, []);
+
+    const onFilterChange = (changedFields: FieldData[]) => {
+
+        // console.log("Changed filters in products page ",changedFields);
+        const changedFilterFields = changedFields
+            .map((item) => ({
+                [item.name[0]]: item.value,
+            }))
+            .reduce((acc, item) => ({ ...acc, ...item }), {});
+        if ('q' in changedFilterFields) {
+            debouncedQUpdate(changedFilterFields.q);
+        } else {
+            setQueryParams((prev) => ({ ...prev, ...changedFilterFields, currentPage: 1 }));
+        }
+    };
+
+    // const onFilterChange=(changedFields: FieldData)=>{
+    //     console.log("Changed filters in products page ",changedFields);
+    // }
 
     // console.log(products);
 
@@ -92,8 +120,8 @@ const Products = () => {
                         items={[{ title: <Link to="/">Dashboard</Link> }, { title: 'Products' }]}
                     />
                 </Flex>
-
-                <Form form={filterForm} onFieldsChange={() => {}}>
+                {/* onFieldsChange={() => {onFilterChange}} */}
+                <Form form={filterForm} onFieldsChange={onFilterChange}>
                     <ProductsFilter>
                         <Button type="primary" icon={<PlusOutlined />} onClick={() => {}}>
                             Add Product
@@ -121,7 +149,7 @@ const Products = () => {
                     rowKey={'_id'}
                     pagination={{
                         total: products?.total,
-                        pageSize: queryParams.perPage,
+                        pageSize: queryParams.pageSize,
                         current: queryParams.currentPage,
                         onChange: (page) => {
                             // console.log(page);
@@ -133,7 +161,7 @@ const Products = () => {
                             });
                         },
                         showTotal: (total: number, range: number[]) => {
-                            console.log(total, range);
+                            // console.log(total, range);
                             return `Showing ${range[0]}-${range[1]} of ${total} items`;
                         },
                     }}
