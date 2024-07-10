@@ -47,3 +47,9 @@ try {
     session.endSession();
     throw error;
 }
+
+**postgresdb
+docker run --rm --name mern_postgres_dbserver -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -v mernpgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:latest
+
+# Run MongoDB image as a container
+docker run -d --name mongodb -p 27017:27017 mongo

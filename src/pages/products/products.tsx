@@ -1,4 +1,17 @@
-import { Breadcrumb, Button, Flex, Form, Image, Space, Spin, Table, Tag, Typography } from 'antd';
+import {
+    Breadcrumb,
+    Button,
+    Drawer,
+    Flex,
+    Form,
+    Image,
+    Space,
+    Spin,
+    Table,
+    Tag,
+    theme,
+    Typography,
+} from 'antd';
 import { RightOutlined, PlusOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import ProductsFilter from './productsFilter';
@@ -10,6 +23,7 @@ import { getProducts } from '../../http/api';
 import { format } from 'date-fns';
 import { debounce } from 'lodash';
 import { useAuthStore } from '../../store';
+import ProductForm from './productForm';
 
 const columns = [
     {
@@ -59,9 +73,15 @@ const columns = [
 ];
 
 const Products = () => {
-
     const [filterForm] = Form.useForm();
+    const [form] = Form.useForm();
+
     const { user } = useAuthStore();
+
+    const {
+        token: { colorBgLayout },
+    } = theme.useToken();
+    const [drawerOpen, setDrawerOpen] = React.useState(false);
 
     const [queryParams, setQueryParams] = React.useState({
         pageSize: per_page,
@@ -73,7 +93,7 @@ const Products = () => {
         data: products,
         isFetching,
         isError,
-        error
+        error,
     } = useQuery({
         queryKey: ['products', queryParams],
         queryFn: () => {
@@ -87,19 +107,15 @@ const Products = () => {
             return getProducts(queryString).then((res) => res.data);
         },
         placeholderData: keepPreviousData,
-        retryOnMount: false,
-        staleTime: 1000 * 60,
     });
 
     const debouncedQUpdate = React.useMemo(() => {
         return debounce((value: string | undefined) => {
-            setQueryParams((prev) => ({ ...prev, q: value, currentPage: 1 }));
+            setQueryParams((prev) => ({ ...prev, q: value, page: 1 }));
         }, 500);
     }, []);
 
     const onFilterChange = (changedFields: FieldData[]) => {
-
-        // console.log("Changed filters in products page ",changedFields);
         const changedFilterFields = changedFields
             .map((item) => ({
                 [item.name[0]]: item.value,
@@ -108,15 +124,13 @@ const Products = () => {
         if ('q' in changedFilterFields) {
             debouncedQUpdate(changedFilterFields.q);
         } else {
-            setQueryParams((prev) => ({ ...prev, ...changedFilterFields, currentPage: 1 }));
+            setQueryParams((prev) => ({ ...prev, ...changedFilterFields, page: 1 }));
         }
     };
 
-    // const onFilterChange=(changedFields: FieldData)=>{
-    //     console.log("Changed filters in products page ",changedFields);
-    // }
-
-    // console.log(products);
+    const onHandleSubmit = () => {
+        console.log('submitting...');
+    };
 
     return (
         <>
@@ -130,14 +144,17 @@ const Products = () => {
                     {isFetching && (
                         <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
                     )}
-
                     {isError && <Typography.Text type="danger">{error.message}</Typography.Text>}
-
                 </Flex>
-                {/* onFieldsChange={() => {onFilterChange}} */}
+
                 <Form form={filterForm} onFieldsChange={onFilterChange}>
                     <ProductsFilter>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={() => {}}>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => {
+                                setDrawerOpen(true);
+                            }}>
                             Add Product
                         </Button>
                     </ProductsFilter>
@@ -180,6 +197,35 @@ const Products = () => {
                         },
                     }}
                 />
+
+                <Drawer
+                    title={'Add Product'}
+                    width={720}
+                    styles={{ body: { backgroundColor: colorBgLayout } }}
+                    destroyOnClose={true}
+                    open={drawerOpen}
+                    onClose={() => {
+                        form.resetFields();
+                        setDrawerOpen(false);
+                    }}
+                    extra={
+                        <Space>
+                            <Button
+                                onClick={() => {
+                                    form.resetFields();
+                                    setDrawerOpen(false);
+                                }}>
+                                Cancel
+                            </Button>
+                            <Button type="primary" onClick={onHandleSubmit}>
+                                Submit
+                            </Button>
+                        </Space>
+                    }>
+                    <Form layout="vertical" form={form}>
+                        <ProductForm />
+                    </Form>
+                </Drawer>
             </Space>
         </>
     );
