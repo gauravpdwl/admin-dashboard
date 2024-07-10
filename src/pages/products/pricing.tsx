@@ -6,7 +6,7 @@ type PricingProps = {
 };
 
 const Pricing = ({ selectedCategory }: PricingProps) => {
-    console.log('config', selectedCategory);
+    // console.log('config', selectedCategory);
     const category: Category | null = selectedCategory ? JSON.parse(selectedCategory) : null;
 
     if (!category) {

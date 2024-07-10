@@ -8,7 +8,7 @@ import Attributes from './attributes';
 
 const ProductForm = () => {
     const selectedCategory = Form.useWatch('categoryId');
-    console.log(selectedCategory);
+    // console.log(selectedCategory);
     const { data: categories } = useQuery({
         queryKey: ['categories'],
         queryFn: () => {
@@ -142,7 +142,7 @@ const ProductForm = () => {
                     </Card>
 
                     {selectedCategory && <Pricing selectedCategory={selectedCategory} />}
-                    {selectedCategory && <Attributes />}
+                    {selectedCategory && <Attributes selectedCategory={selectedCategory} />}
 
                     <Card title="Other properties" bordered={false}>
                         <Row gutter={24}>
