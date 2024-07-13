@@ -16,7 +16,11 @@ const ProductsFilter = ({ children }: ProductsFilterProps) => {
         queryKey: ['restaurants'],
         queryFn: () => {
             // return getTenants(`perPage=100&currentPage=1`);
-            return getTenants();
+            console.log("coming inside filters");
+            if(user?.role !== 'manager'){
+                return getTenants();
+            }
+            return null;
         },
         retryOnMount: false,
         staleTime: 1000 * 60
