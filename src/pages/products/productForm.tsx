@@ -115,7 +115,7 @@ const ProductForm = () => {
                                         allowClear={true}
                                         onChange={() => {}}
                                         placeholder="Select restaurant">
-                                        {restaurants?.data.data.map((tenant: Tenant) => (
+                                        {restaurants?.data.map((tenant: Tenant) => (
                                             <Select.Option value={tenant.id} key={tenant.id}>
                                                 {tenant.name}
                                             </Select.Option>
