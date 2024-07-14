@@ -22,7 +22,11 @@ const ProductForm = ({ form }: { form: FormInstance }) => {
     const { data: restaurants } = useQuery({
         queryKey: ['restaurants'],
         queryFn: () => {
-            return getTenants();
+            console.log("coming inside productform");
+            if(user?.role !== 'manager'){
+                return getTenants(`perPage=100&currentPage=1`);
+            }
+            return null;
         },
     });
 

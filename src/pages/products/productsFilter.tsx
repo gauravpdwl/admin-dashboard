@@ -16,9 +16,9 @@ const ProductsFilter = ({ children }: ProductsFilterProps) => {
         queryKey: ['restaurants'],
         queryFn: () => {
             // return getTenants(`perPage=100&currentPage=1`);
-            console.log("coming inside filters");
+            console.log("coming inside productfilters");
             if(user?.role !== 'manager'){
-                return getTenants();
+                return getTenants(`perPage=100&currentPage=1`);
             }
             return null;
         },
@@ -72,7 +72,7 @@ const ProductsFilter = ({ children }: ProductsFilterProps) => {
                                         style={{ width: '100%' }}
                                         allowClear={true}
                                         placeholder="Select restaurant">
-                                        {restaurants?.data.map((restaurant: Tenant) => {
+                                        {restaurants?.data.data.map((restaurant: Tenant) => {
                                             return (
                                                 <Select.Option
                                                     key={restaurant.id}
