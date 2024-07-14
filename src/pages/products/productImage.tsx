@@ -2,9 +2,9 @@ import { Form, message, Space, Typography, Upload, UploadProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
-const ProductImage = () => {
+const ProductImage = ({ initialImage }: { initialImage: string }) => {
     const [messageApi, contextHolder] = message.useMessage();
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(initialImage);
 
     const uploaderConfig: UploadProps = {
         name: 'file',
@@ -35,7 +35,7 @@ const ProductImage = () => {
                     message: 'Please upload a product image',
                 },
             ]}>
-            <Upload listType="picture-card" {...uploaderConfig}>
+            <Upload listType="picture-card" {...uploaderConfig} fileList={undefined}>
                 {contextHolder}
                 {imageUrl ? (
                     <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />

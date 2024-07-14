@@ -54,3 +54,83 @@ docker run --rm --name mern_postgres_dbserver -e POSTGRES_USER=root -e POSTGRES_
 # Run MongoDB image as a container
 # docker run -d --name mongodb -v mernmongodbdata:/var/lib/mongodb/data -p 27017:27017 mongo
 docker run -d --name mongodb -p 27017:27017 mongo
+
+
+**Bevarage
+
+
+{
+  "name": "Bevarage",
+  "priceConfiguration": {
+    "Size": {
+      "priceType": "base",
+      "availableOptions": [
+        "Small",
+        "Medium",
+        "Large"
+      ]
+    },
+    "Type": {
+      "priceType": "aditional",
+      "availableOptions": [
+        "Normal",
+        "Chilled"
+      ]
+    }
+  },
+  "attributes": [
+    {
+      "name": "isHit",
+      "widgetType": "switch",
+      "defaultValue": "No",
+      "availableOptions": [
+        "Yes",
+        "No"
+      ]
+    }
+  ]
+}
+
+**Pizza Category
+
+{
+  "name": "Pizza",
+  "priceConfiguration": {
+    "Size": {
+      "priceType": "base",
+      "availableOptions": [
+        "Small",
+        "Medium",
+        "Large"
+      ]
+    },
+    "Crust": {
+      "priceType": "aditional",
+      "availableOptions": [
+        "Thin",
+        "Thick"
+      ]
+    }
+  },
+  "attributes": [
+    {
+      "name": "isHit",
+      "widgetType": "switch",
+      "defaultValue": "No",
+      "availableOptions": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "name": "Spiciness",
+      "widgetType": "radio",
+      "defaultValue": "Medium",
+      "availableOptions": [
+        "Less",
+        "Medium",
+        "Hot"
+      ]
+    }
+  ]
+}

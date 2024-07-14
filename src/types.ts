@@ -46,6 +46,11 @@ export interface Attribute {
     availableOptions: string[];
 }
 
+export type ProductAttribute = {
+    name: string;
+    value: string | boolean;
+};
+
 export type Category = {
     _id: string;
     name: string;
@@ -59,9 +64,12 @@ export type Product = {
     image: string;
     description: string;
     category: Category;
+    priceConfiguration: PriceConfiguration;
+    attributes: ProductAttribute[];
     isPublish: boolean;
     createdAt: string;
 };
 
 export type ImageField = { file: File };
 export type CreateProductData = Product & { image: ImageField };
+
