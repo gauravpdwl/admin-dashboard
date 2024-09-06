@@ -1,11 +1,12 @@
 import { NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
-import Icon, { BellFilled, HomeOutlined, UserOutlined, ProductOutlined, ProfileOutlined } from '@ant-design/icons';
+import Icon, { BellFilled, HomeOutlined, UserOutlined, ProfileOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store';
 import { Avatar, Badge, Dropdown, Flex, Layout, Menu, Space, theme } from 'antd';
 import { useState } from 'react';
 import { foodIcon } from '../components/icons/foodicon';
 import { useMutation } from '@tanstack/react-query';
 import { logout } from '../http/api';
+import BasketIcon from '../components/icons/BasketIcon';
 
 
 const { Sider, Header, Content, Footer } = Layout;
@@ -21,8 +22,13 @@ const getMenuItems=(role:string)=>{
         },
         {
             key: '/products',
-            icon: <ProductOutlined />,
+            icon: <Icon component={foodIcon} />,
             label: <NavLink to="/products">Products</NavLink>,
+        },
+        {
+            key: '/orders',
+            icon: <Icon component={BasketIcon} />,
+            label: <NavLink to="/orders">Orders</NavLink>,
         },
         {
             key: '/promos',

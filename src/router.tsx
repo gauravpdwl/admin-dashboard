@@ -7,6 +7,7 @@ import Root from "./layouts/root";
 import Users from "./pages/users/users";
 import Tenants from "./pages/tenants/tenants";
 import Products from "./pages/products/products";
+import Orders from "./pages/orders/orders.tsx";
 
 export const router=createBrowserRouter([
     {
@@ -32,6 +33,10 @@ export const router=createBrowserRouter([
                     {
                         path:'/products',
                         element:<Products/>
+                    },
+                    {
+                        path: '/orders',
+                        element: <Orders />,
                     },
                     {
                         path:'/promos',
