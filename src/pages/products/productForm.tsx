@@ -30,6 +30,8 @@ const ProductForm = ({ form }: { form: FormInstance }) => {
         },
     });
 
+    console.log("Restaurants -> ",restaurants)
+
     return (
         <Row>
             <Col span={24}>
@@ -119,7 +121,7 @@ const ProductForm = ({ form }: { form: FormInstance }) => {
                                             allowClear={true}
                                             onChange={() => {}}
                                             placeholder="Select restaurant">
-                                            {restaurants?.data.map((tenant: Tenant) => (
+                                            {restaurants?.data.data.map((tenant: Tenant) => (
                                                 <Select.Option
                                                     value={String(tenant.id)}
                                                     key={tenant.id}>
