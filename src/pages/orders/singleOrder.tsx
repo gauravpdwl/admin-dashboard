@@ -1,12 +1,35 @@
-import { Avatar, Breadcrumb, Card, Col, Flex, List, Row, Space, Tag, Typography } from 'antd';
+import { Avatar, Breadcrumb, Card, Col, Flex, List, Row, Select, Space, Tag, Typography } from 'antd';
 import { RightOutlined } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
 import { colorMapping } from '../../constants';
 import { capitalizeFirst } from '../products/helpers';
-import { useQuery } from '@tanstack/react-query';
-import { getSingle } from '../../http/api';
-import { Order } from '../../types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { changeStatus, getSingle } from '../../http/api';
+import { Order, OrderStatus } from '../../types';
 import { format } from 'date-fns';
+
+const orderStatusOptions = [
+    {
+        value: 'received',
+        label: 'Received',
+    },
+    {
+        value: 'confirmed',
+        label: 'Confirmed',
+    },
+    {
+        value: 'prepared',
+        label: 'Prepared',
+    },
+    {
+        value: 'out_for_delivery',
+        label: 'Out For Delivery',
+    },
+    {
+        value: 'delivered',
+        label: 'Delivered',
+    },
+];
 
 const SingleOrder = () => {
     const params = useParams();
@@ -22,10 +45,28 @@ const SingleOrder = () => {
         },
     });
 
+    const queryClient = useQueryClient();
+
+    const { mutate } = useMutation({
+        mutationKey: ['order', orderId],
+        mutationFn: (status: OrderStatus) => {
+            return changeStatus(orderId as string, { status }).then((res) => res.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+        },
+    });
+
     if (!order) {
         return null;
     }
-    console.log('order', order);
+
+    // console.log('order', order);
+
+    const handleStatusChange = (status: OrderStatus) => {
+        mutate(status);
+    };
+
     return (
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <Flex justify="space-between">
@@ -37,6 +78,18 @@ const SingleOrder = () => {
                         { title: `Order #${order?._id}` },
                     ]}
                 />
+
+                <Space>
+                    <Typography.Text>Change Order Status</Typography.Text>
+                    <Select
+                        defaultValue={order.orderStatus}
+                        style={{
+                            width: 150,
+                        }}
+                        onChange={handleStatusChange}
+                        options={orderStatusOptions}
+                    />
+                </Space>
             </Flex>
 
             <Row gutter={24}>
